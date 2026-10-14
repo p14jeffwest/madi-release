@@ -5,14 +5,14 @@
 ## Python
 
 ```
-pip install madi
+pip install madipy          # import 는 madi
 ```
 ```python
 import madi
 m = madi.Analyzer()          # 처음 한 번 이 저장소의 Release 에서 모델을 받는다
 m.pos('아버지가 방에 들어가신다')
 ```
-자세한 사용법: https://pypi.org/project/madi/
+자세한 사용법: https://pypi.org/project/madipy/
 
 ## 모델 파일 (Release `models-kword5`)
 
@@ -38,3 +38,11 @@ c6d35a7f5514f3846673ed3c7544562832c5ee4dba0158b6a3956392b072369e  precise.tlm
 - 사전: mecab-ko-dic(Apache-2.0) 을 바탕으로 합니다.
 - 언어모델·교사 모델: 국립국어원 「모두의 말뭉치」로 학습했습니다. **[이용 조건 — 국립국어원 결과물 공개 승인 내용에 맞춰 적을 것]**
 - 학습 말뭉치 원문은 포함하지 않습니다.
+
+<!-- 공개 승인 뒤 주석을 푼다 (closeout 10.14 §2). 수치는 WikiDocs 9.2 'README 한 줄' 과 같아야 한다.
+## 성능 요약 (평가 2차, 2026.10.13)
+학습과 독립인 셋에서 Kiwi 대비 +0.4p(유의) · 모두의 말뭉치 지침 준수 최상 · Kiwi 보다 12~26% 빠르고 가벼움 · 모호성 벤치마크는 기본 모드 열세, 정밀 모드 동급 · 문장 분리 개선(0.805).
+
+## 출처
+국립국어원 모두의 말뭉치(형태 분석 말뭉치, 어휘 의미 분석 말뭉치)를 활용하였음.
+-->
