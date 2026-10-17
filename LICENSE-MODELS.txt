@@ -1,0 +1,26 @@
+madi 모델 파일 이용 조건 (models-kword5)
+==========================================
+
+대상: madi.dict, knlm.bin, model.nlm, precise.tlm (및 WASM 경량 madi_s.dict, knlm_light.bin)
+
+모델·사전 파일은 CC BY-SA 2.0 KR. 국립국어원 모두의 말뭉치(형태 분석 말뭉치 2018~2020, 형태 분석 말뭉치 2025, 어휘 의미 분석 말뭉치 2020)와 우리말샘을 활용하였음(국립국어원 공개 승인 2026-10-17). 말뭉치 원문을 담거나 복원할 수 없는 통계·가중치임.
+신문 기사 원문으로 자기 라벨 학습.
+사전은 mecab-ko-dic(Apache-2.0)을 바탕으로 합니다.
+
+라이선스: 크리에이티브 커먼즈 저작자표시-동일조건변경허락 2.0 대한민국 (CC BY-SA 2.0 KR)
+  https://creativecommons.org/licenses/by-sa/2.0/kr/
+  전문: https://creativecommons.org/licenses/by-sa/2.0/kr/legalcode
+
+출처 표시 예:
+  madi 모델 kword5 (박희진, https://github.com/p14jeffwest/madi-release), CC BY-SA 2.0 KR.
+  국립국어원 모두의 말뭉치·우리말샘을 활용하였음.
+
+학습 입력 목록: MODEL-PROVENANCE.md
+프로그램(코드)의 라이선스는 이와 따로이며 MIT 또는 Apache-2.0 입니다.
+
+------------------------------------------
+Model files are licensed under CC BY-SA 2.0 KR. They were trained using the National Institute of
+Korean Language (NIKL) "Modu" corpora (morphologically analyzed corpus 2018-2020 and 2025, lexical
+semantic corpus 2020) and the Urimalsaem dictionary, with NIKL release approval of 2026-10-17. They
+contain only statistics and weights from which corpus text cannot be recovered. The dictionary is
+based on mecab-ko-dic (Apache-2.0). Code is licensed separately under MIT OR Apache-2.0.
