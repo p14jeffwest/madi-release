@@ -1,0 +1,412 @@
+<title>마디 형태소 분석기</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="madi(마디) — 순수 Rust 한국어 형태소 분석기. Python·Rust·WASM.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=IBM+Plex+Sans+KR:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* 레이아웃: 한 단(최대 60rem) 세로 흐름. 첫 화면은 실제 분석 결과(어절 = 마디, 형태소 = 마디 속 조각)가 곧 표제다. */
+:root {
+  --bg: #f4f7f5;          /* 대나무 속살처럼 아주 옅은 청록 기운의 바탕 */
+  --surface: #ffffff;
+  --ink: #18201d;
+  --muted: #59655f;
+  --line: #d3ddd8;
+  --accent: #23614f;      /* 청자·대나무 녹 */
+  --accent-soft: #e2eee9;
+  --tag: #3b4c78;         /* 품사 표지 — 남색 */
+  --tag-soft: #e7eaf4;
+  --good: #23614f;
+  --warn: #9a5b12;
+  --font-display: "Gowun Batang", "Nanum Myeongjo", "Batang", serif;
+  --font-body: "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", "D2Coding", ui-monospace, "Consolas", monospace;
+  --step--1: 0.84rem;
+  --step-0: 1rem;
+  --step-1: 1.2rem;
+  --step-2: 1.55rem;
+  --step-3: 2.2rem;
+  --step-4: clamp(2.8rem, 8vw, 4.6rem);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #111614; --surface: #18201d; --ink: #e3ebe7; --muted: #9aa8a1; --line: #2c3833;
+    --accent: #7cc3a8; --accent-soft: #1d2d27; --tag: #a9b8e6; --tag-soft: #222943;
+    --good: #7cc3a8; --warn: #e0a65a; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #111614; --surface: #18201d; --ink: #e3ebe7; --muted: #9aa8a1; --line: #2c3833;
+  --accent: #7cc3a8; --accent-soft: #1d2d27; --tag: #a9b8e6; --tag-soft: #222943;
+  --good: #7cc3a8; --warn: #e0a65a; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink);
+  font-family: var(--font-body); font-size: var(--step-0); line-height: 1.7;
+  word-break: keep-all; overflow-wrap: anywhere;
+}
+.wrap {
+  max-width: 60rem; margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+a { color: var(--accent); text-underline-offset: 3px; }
+a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+h1, h2, h3 { font-family: var(--font-display); font-weight: 700; line-height: 1.25; text-wrap: balance; margin: 0; }
+h2 { font-size: var(--step-2); }
+h3 { font-size: var(--step-1); }
+p { margin: 0; max-width: 40rem; }
+code, .mono { font-family: var(--font-mono); font-size: 0.92em; }
+.label { font-size: var(--step--1); letter-spacing: 0.06em; color: var(--muted); }
+
+/* 머리 */
+header.top { padding-block: 1.25rem; border-bottom: 1px solid var(--line); }
+header.top .wrap { display: flex; flex-wrap: wrap; gap: 0.5rem 1.5rem; align-items: baseline; justify-content: space-between; }
+.brand { font-family: var(--font-display); font-size: var(--step-1); font-weight: 700; }
+.brand span { color: var(--muted); font-weight: 400; font-size: var(--step--1); margin-left: 0.4rem; font-family: var(--font-body); }
+nav { display: flex; flex-wrap: wrap; gap: 0.25rem 1.1rem; font-size: var(--step--1); }
+
+/* 표제: 분석 예 */
+.hero { padding-block: 3rem 2.5rem; display: grid; gap: 1.75rem; }
+.hero h1 { font-size: var(--step-4); letter-spacing: -0.01em; }
+.hero h1 small { display: block; font-size: var(--step-1); font-weight: 400; color: var(--muted); font-family: var(--font-body); margin-top: 0.6rem; letter-spacing: 0; }
+.hero .lead { font-size: var(--step-1); line-height: 1.6; max-width: 38rem; }
+
+.demo { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 1.25rem; display: grid; gap: 1rem; min-width: 0; }
+.demo-bar { display: flex; flex-wrap: wrap; gap: 0.75rem 1.5rem; align-items: center; justify-content: space-between; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; padding: 2px; gap: 2px; }
+.seg button {
+  font: inherit; font-size: var(--step--1); border: 0; background: transparent; color: var(--muted);
+  padding: 0.25rem 0.8rem; border-radius: 999px; cursor: pointer;
+}
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--bg); }
+.examples { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.examples button {
+  font: inherit; font-size: var(--step--1); cursor: pointer;
+  border: 1px solid var(--line); background: transparent; color: var(--ink);
+  border-radius: 6px; padding: 0.2rem 0.6rem;
+}
+.examples button[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); }
+.sentence { font-family: var(--font-display); font-size: var(--step-2); }
+.madi-row { display: flex; flex-wrap: wrap; gap: 0.9rem 0; align-items: stretch; }
+.eojeol { display: grid; gap: 0.45rem; padding-inline: 0.8rem; border-left: 3px double var(--accent); }
+.eojeol:first-child { border-left: 0; padding-left: 0; }
+.eojeol .surface { font-family: var(--font-display); font-size: var(--step-1); }
+.morphs { display: flex; gap: 0.3rem; flex-wrap: wrap; }
+.m { display: grid; gap: 0.1rem; justify-items: start; }
+.m .form { font-size: var(--step-0); font-weight: 500; }
+.m .tag {
+  font-size: 0.74rem; color: var(--tag); background: var(--tag-soft);
+  padding: 0.05rem 0.4rem; border-radius: 4px; white-space: nowrap;
+}
+.m .tag.code { font-family: var(--font-mono); }
+.demo-note { font-size: var(--step--1); color: var(--muted); }
+
+/* 절 */
+section.block { padding-block: 2.75rem; border-top: 1px solid var(--line); }
+.cols { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); }
+.cols > * { min-width: 0; }
+.feature { display: grid; gap: 0.35rem; align-content: start; }
+.feature h3 { font-size: var(--step-0); font-family: var(--font-body); font-weight: 600; }
+.feature p { color: var(--muted); font-size: 0.95rem; }
+
+/* 설치 */
+.install { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr)); }
+.install > div { min-width: 0; display: grid; gap: 0.4rem; align-content: start; }
+.cmd {
+  position: relative; background: var(--surface); border: 1px solid var(--line); border-radius: 8px;
+  padding: 0.75rem 3.8rem 0.75rem 0.9rem; overflow-x: auto;
+}
+.cmd pre { margin: 0; font-family: var(--font-mono); font-size: 0.86rem; line-height: 1.6; white-space: pre; }
+.cmd button {
+  position: absolute; top: 0.45rem; right: 0.45rem; font: inherit; font-size: 0.72rem; cursor: pointer;
+  border: 1px solid var(--line); background: var(--bg); color: var(--muted); border-radius: 5px; padding: 0.1rem 0.45rem;
+}
+
+/* 표 */
+.table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 0.9rem; font-variant-numeric: tabular-nums; }
+th, td { padding: 0.5rem 0.75rem; text-align: right; border-bottom: 1px solid var(--line); white-space: nowrap; }
+th:first-child, td:first-child { text-align: left; }
+thead th { font-weight: 500; color: var(--muted); font-size: var(--step--1); vertical-align: bottom; white-space: normal; }
+tbody tr:last-child td { border-bottom: 0; }
+tr.madi td:first-child { font-weight: 600; }
+tr.madi td { background: var(--accent-soft); }
+td .d { color: var(--muted); font-size: 0.8rem; margin-left: 0.3rem; }
+td .lo { color: var(--warn); }
+.notes { display: grid; gap: 0.35rem; font-size: 0.9rem; color: var(--muted); padding-left: 1.1rem; margin: 0; }
+
+/* 점 그림 */
+figure { margin: 0; display: grid; gap: 0.5rem; }
+figure svg { width: 100%; height: auto; display: block; }
+figcaption { font-size: var(--step--1); color: var(--muted); }
+.chart-box { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 0.75rem; overflow-x: auto; }
+.chart-box svg { min-width: 30rem; }
+
+footer { border-top: 1px solid var(--line); padding-block: 2rem 3rem; font-size: var(--step--1); color: var(--muted); }
+footer .wrap { display: grid; gap: 0.6rem; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .eojeol { animation: rise 0.35s ease-out both; }
+  @keyframes rise { from { transform: translateY(4px); } to { transform: none; } }
+}
+</style>
+
+<header class="top">
+  <div class="wrap">
+    <div class="brand">madi<span>마디 · 0.1.1</span></div>
+    <nav aria-label="바로 가기">
+      <a href="#install">설치</a>
+      <a href="#perf">성능</a>
+      <a href="#license">모델·이용 조건</a>
+      <a href="https://github.com/p14jeffwest/madi-release">GitHub</a>
+      <a href="https://pypi.org/project/madipy/">PyPI</a>
+      <a href="https://crates.io/crates/madi">crates.io</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+    <div class="hero">
+      <h1>마디<small>순수 Rust 로 만든 한국어 형태소 분석기</small></h1>
+      <p class="lead">문장을 어절로, 어절을 형태소로 나누고 세종 품사 표지를 붙입니다. 국립국어원 모두의 말뭉치 형태 분석 지침을 따릅니다. Python 패키지, Rust 라이브러리, 명령줄 도구가 모두 같은 결과를 냅니다.</p>
+
+      <div class="demo" aria-label="분석 예">
+        <div class="demo-bar">
+          <div class="examples" id="examples" role="group" aria-label="예문"></div>
+          <div class="seg" role="group" aria-label="품사 표지 방식">
+            <button type="button" id="tag-ko" aria-pressed="true">한글 표지</button>
+            <button type="button" id="tag-code" aria-pressed="false">코드</button>
+          </div>
+        </div>
+        <div class="sentence" id="sentence"></div>
+        <div class="madi-row" id="madi-row"></div>
+        <p class="demo-note">madi 기본 설정(사전 + n-gram LM + 신경망 LM)의 실제 출력입니다. 겹줄은 어절 경계, 표지에 마우스를 올리면 정식 이름이 보입니다. 축약된 활용형(신다 = 시 + ㄴ다, 들어 = 듣 + 어)은 원형으로 풀어 냅니다.</p>
+      </div>
+    </div>
+  </div>
+
+  <section class="block" aria-labelledby="feat-h">
+    <div class="wrap" style="display:grid;gap:1.25rem">
+      <h2 id="feat-h">무엇을 하나</h2>
+      <div class="cols">
+        <div class="feature"><h3>모두의 말뭉치 지침을 따르는 분석</h3><p>세종 품사 표지(NNG, VV, EF …)로 분석합니다. 2018 지침이 기본이고, 2025년판 형태 분석 지침식 출력(복합 명사 합치기 등)도 고를 수 있습니다.</p></div>
+        <div class="feature"><h3>두 단계 탐색</h3><p>사전으로 격자를 만들고, 연접 비용으로 가망 없는 후보를 거른 뒤 형태소 n-gram LM 과 작은 신경망 LM 으로 다시 채점합니다. 앞뒤 양방향 점수로 한 번 더 걸러 LM 질의를 줄입니다.</p></div>
+        <div class="feature"><h3>정밀 모드</h3><p>점수 차가 작은 어절만 작은 트랜스포머 교사로 다시 고릅니다. 동사·형용사, 불규칙 활용처럼 헷갈리는 자리에서 정확도가 오르고, 대신 느려집니다.</p></div>
+        <div class="feature"><h3>형태소로 나누는 문장 분리</h3><p>마침표가 없는 구어 문장도 종결 어미를 보고 나눕니다. 규칙만 쓰는 빠른 분리도 함께 있습니다.</p></div>
+        <div class="feature"><h3>사용자 사전</h3><p>단어, 기분석 항목, 분석 고치기 규칙을 파일로 더할 수 있습니다.</p></div>
+        <div class="feature"><h3>판본 문자열</h3><p>사전·모델 파일과 설정을 해시로 묶은 문자열(<code>0.1.1+decdb.r3p.f11…</code>)을 냅니다. 두 분석 결과가 같은 판에서 나왔는지 바로 확인할 수 있습니다.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="install" aria-labelledby="inst-h">
+    <div class="wrap" style="display:grid;gap:1.25rem">
+      <h2 id="inst-h">설치</h2>
+      <div class="install">
+        <div>
+          <span class="label">PYTHON 3.9+ · Windows · macOS · Linux</span>
+          <div class="cmd"><pre id="c-py">pip install madipy
+
+import madi
+m = madi.Analyzer()   # 처음 한 번 모델을 받는다
+m.pos('아버지가 방에 들어가신다')</pre><button type="button" data-copy="c-py">복사</button></div>
+          <p class="demo-note">설치 이름은 <code>madipy</code>, 코드에서는 <code>import madi</code>. 모델(약 87 MB, 정밀 모드 +27 MB)은 처음 쓸 때 받습니다.</p>
+        </div>
+        <div>
+          <span class="label">RUST</span>
+          <div class="cmd"><pre id="c-rs">cargo add madi
+cargo install madi-cli
+
+madi analyze --dict madi.dict --lm knlm.bin \
+  --nlm model.nlm "아버지가 방에 들어가신다"</pre><button type="button" data-copy="c-rs">복사</button></div>
+          <p class="demo-note">모델 파일은 <a href="https://github.com/p14jeffwest/madi-release/releases">Release</a> 에서 받아 경로를 줍니다. API 문서는 <a href="https://docs.rs/madi">docs.rs</a>.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="perf" aria-labelledby="perf-h">
+    <div class="wrap" style="display:grid;gap:1.25rem">
+      <h2 id="perf-h">성능</h2>
+      <p>여러 분석기를 같은 잣대로 채점했습니다. 각 분석기의 태그를 세종 태그로 옮기고, 복합 명사 단위·숫자·기호처럼 분석기마다 관행이 갈리는 곳은 양쪽에서 똑같이 지웁니다. 차이는 Kiwi CoNg 대비이고, 괄호는 95% 구간입니다.</p>
+
+      <figure>
+        <div class="chart-box"><svg id="dot" viewBox="0 0 680 300" role="img" aria-label="분석기별 형태소 F1 점 그림"></svg></div>
+        <figcaption>모두의 말뭉치 형태 분석 말뭉치 2025 문어 6,953문장(학습에 쓰지 않은 셋), 형태소 F1. 가로축은 0.84 에서 시작합니다.</figcaption>
+      </figure>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>분석기</th><th>MP 2025 문어<br>F1</th><th>MP 2025 구어<br>F1</th><th>신문 1990~2025<br>420문장 F1</th><th>모호성 kiwi510<br>정확도</th><th>속도<br>KB/s</th><th>메모리<br>MB</th></tr>
+          </thead>
+          <tbody id="perf-body"></tbody>
+        </table>
+      </div>
+      <ul class="notes">
+        <li>기본 모드는 모호성 벤치마크 kiwi510 에서 Kiwi 보다 낮습니다(0.7471 대 0.8275, p 0.0002). 정밀 모드는 같은 수준입니다(차이 유의하지 않음). 일반 문장의 형태소 F1 은 기본 모드도 앞섭니다.</li>
+        <li>신문 420문장에서 madi 기본과 Kiwi CoNg 의 차(+0.35p)는 유의하지 않습니다. 정밀 모드의 차(+0.49p)는 유의합니다.</li>
+        <li>속도·메모리: 노트북 1스레드, Python 바인딩, 분석 뒤 최대 RSS. Khaiii 는 같은 노트북의 WSL 에서 쟀습니다. JVM 분석기의 메모리는 JVM 힙을 포함합니다. Hannanum·Okt 는 세종 태그로 옮길 수 없어 표에서 뺐습니다.</li>
+        <li>공개판은 위 측정 설정에 전후향 가지치기(τ 11)를 더한 것입니다. 측정 셋 1만 7천 문장 중 5문장만 출력이 바뀌고, LM 질의가 44% 줄어 CLI 에서 약 17% 빨라집니다.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="block" id="license" aria-labelledby="lic-h">
+    <div class="wrap" style="display:grid;gap:1.25rem">
+      <h2 id="lic-h">모델·이용 조건</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>무엇</th><th style="text-align:left">어디</th><th style="text-align:left">조건</th></tr></thead>
+          <tbody>
+            <tr><td>분석기 코드 (madi-core · madi-lm · madi · madi-cli 등)</td><td style="text-align:left">crates.io, PyPI <code>madipy</code></td><td style="text-align:left">MIT 또는 Apache-2.0</td></tr>
+            <tr><td>모델·사전 파일, WASM 경량 모델</td><td style="text-align:left">GitHub Release <code>models-kword5</code></td><td style="text-align:left">CC BY-SA 2.0 KR</td></tr>
+            <tr><td>맞춤법 검사기 (LSP · VS Code 확장)</td><td style="text-align:left">실행 파일로만</td><td style="text-align:left">무료 이용 조건</td></tr>
+            <tr><td>학습·평가 도구, 말뭉치 원문</td><td style="text-align:left">제공하지 않음</td><td style="text-align:left">—</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>모델·사전 파일은 CC BY-SA 2.0 KR 입니다. 국립국어원 모두의 말뭉치(형태 분석 말뭉치 2018~2020, 형태 분석 말뭉치 2025, 어휘 의미 분석 말뭉치 2020)와 우리말샘을 활용하였습니다(국립국어원 공개 승인 2026-10-17). 신문 기사 원문으로 자기 라벨 학습을 했습니다. 모델은 말뭉치 원문을 담거나 복원할 수 없는 통계·가중치입니다. 사전은 mecab-ko-dic(Apache-2.0)을 바탕으로 합니다.</p>
+      <p class="demo-note">학습 입력 목록은 <a href="https://github.com/p14jeffwest/madi-release/blob/main/MODEL-PROVENANCE.md">MODEL-PROVENANCE.md</a>, 출처 표시 예는 Release 의 <code>LICENSE-MODELS.txt</code> 에 있습니다.</p>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div>madi(마디) 0.1.1 · 2026 박희진 · 이름은 대나무의 마디, 말의 마디에서 왔습니다.</div>
+    <div><a href="https://github.com/p14jeffwest/madi-release">github.com/p14jeffwest/madi-release</a></div>
+  </div>
+</footer>
+
+<script>
+// 예문: madi 기본 설정의 실제 출력 (CLI --tags code / ko / name). [어절, [[형태, 코드, 한글 표지, 정식 이름], …]]
+const EX = [
+  { s: '아버지가 방에 들어가신다.', e: [
+    ['아버지가', [['아버지','NNG','일반명','일반명사'],['가','JKS','주격조','주격조사']]],
+    ['방에', [['방','NNG','일반명','일반명사'],['에','JKB','부사조','부사격조사']]],
+    ['들어가신다.', [['들어가','VV','동사','동사'],['시','EP','선어말','선어말어미'],['ㄴ다','EF','종결어','종결어미'],['.','SF','마침','마침표·물음표·느낌표']]] ] },
+  { s: '감기는 무서운 병이다.', e: [
+    ['감기는', [['감기','NNG','일반명','일반명사'],['는','JX','보조사','보조사']]],
+    ['무서운', [['무섭','VA','형용사','형용사'],['ㄴ','ETM','관형어','관형사형 전성어미']]],
+    ['병이다.', [['병','NNG','일반명','일반명사'],['이','VCP','긍정지','긍정지정사'],['다','EF','종결어','종결어미'],['.','SF','마침','마침표·물음표·느낌표']]] ] },
+  { s: '그가 말한 바를 들어 보니 그럴 법도 하다.', e: [
+    ['그가', [['그','NP','대명사','대명사'],['가','JKS','주격조','주격조사']]],
+    ['말한', [['말','NNG','일반명','일반명사'],['하','XSV','동접미','동사 파생 접미사'],['ㄴ','ETM','관형어','관형사형 전성어미']]],
+    ['바를', [['바','NNB','의존명','의존명사'],['를','JKO','목적조','목적격조사']]],
+    ['들어', [['듣','VV','동사','동사'],['어','EC','연결어','연결어미']]],
+    ['보니', [['보','VX','보조용','보조용언'],['니','EC','연결어','연결어미']]],
+    ['그럴', [['그렇','VA','형용사','형용사'],['ㄹ','ETM','관형어','관형사형 전성어미']]],
+    ['법도', [['법','NNB','의존명','의존명사'],['도','JX','보조사','보조사']]],
+    ['하다.', [['하','VX','보조용','보조용언'],['다','EF','종결어','종결어미'],['.','SF','마침','마침표·물음표·느낌표']]] ] },
+  { s: '나는 어제 학교에 갔다.', e: [
+    ['나는', [['나','NP','대명사','대명사'],['는','JX','보조사','보조사']]],
+    ['어제', [['어제','MAG','일반부','일반부사']]],
+    ['학교에', [['학교','NNG','일반명','일반명사'],['에','JKB','부사조','부사격조사']]],
+    ['갔다.', [['가','VV','동사','동사'],['았','EP','선어말','선어말어미'],['다','EF','종결어','종결어미'],['.','SF','마침','마침표·물음표·느낌표']]] ] },
+];
+let cur = 0, mode = 'ko';
+try { const m = localStorage.getItem('madi-tag'); if (m === 'ko' || m === 'code') mode = m; } catch (e) {}
+
+function el(tag, cls, text) { const x = document.createElement(tag); if (cls) x.className = cls; if (text != null) x.textContent = text; return x; }
+
+function render() {
+  const ex = EX[cur];
+  document.getElementById('sentence').textContent = ex.s;
+  const row = document.getElementById('madi-row');
+  row.replaceChildren();
+  ex.e.forEach(([w, ms], i) => {
+    const e = el('div', 'eojeol');
+    e.style.animationDelay = (i * 40) + 'ms';
+    e.append(el('div', 'surface', w));
+    const box = el('div', 'morphs');
+    ms.forEach(([f, code, ko, name]) => {
+      const m = el('div', 'm');
+      m.append(el('span', 'form', f));
+      const t = el('span', 'tag' + (mode === 'code' ? ' code' : ''), mode === 'code' ? code : ko);
+      t.title = name + ' (' + code + ')';
+      m.append(t);
+      box.append(m);
+    });
+    e.append(box);
+    row.append(e);
+  });
+  document.querySelectorAll('#examples button').forEach((b, i) => b.setAttribute('aria-pressed', String(i === cur)));
+  document.getElementById('tag-ko').setAttribute('aria-pressed', String(mode === 'ko'));
+  document.getElementById('tag-code').setAttribute('aria-pressed', String(mode === 'code'));
+}
+const exBox = document.getElementById('examples');
+EX.forEach((x, i) => {
+  const b = el('button', null, x.s.length > 12 ? x.s.slice(0, 11) + '…' : x.s);
+  b.type = 'button'; b.title = x.s;
+  b.addEventListener('click', () => { cur = i; render(); });
+  exBox.append(b);
+});
+function setMode(m) { mode = m; try { localStorage.setItem('madi-tag', m); } catch (e) {} render(); }
+document.getElementById('tag-ko').addEventListener('click', () => setMode('ko'));
+document.getElementById('tag-code').addEventListener('click', () => setMode('code'));
+render();
+
+// 성능 표 — claude/madi-paper-A-results.md §11.4(표 A·A′·C), §14.1(속도·메모리). 3p 설정, 2026-10-16 측정
+const P = [
+  // 이름, madi?, 문어, 문어 차, 구어, 구어 차, 신문(중립), kiwi510, KB/s, MB
+  ['madi 기본', 1, .9774, '+0.32p [+0.24, +0.39]', .9640, '+0.53p [+0.44, +0.64]', .9772, .7471, 284, 469],
+  ['madi 정밀', 1, .9784, '+0.42p [+0.34, +0.50]', .9656, '+0.69p [+0.59, +0.80]', .9786, .8137, 26, 525],
+  ['madi n-gram 만', 1, .9751, '+0.09p', .9611, '+0.25p', .9746, .7196, 398, 338],
+  ['Kiwi CoNg', 0, .9742, '', .9586, '', .9737, .8275, 268, 580],
+  ['Kiwi CoNg-global', 0, .9751, '+0.09p', .9603, '+0.16p', .9719, .8667, 107, 600],
+  ['Khaiii', 0, .9554, '', .9189, '', .9386, .5588, 290, 30],
+  ['mecab-ko', 0, .9157, '', .9053, '', .9182, .5549, 2592, 76],
+  ['Komoran', 0, .9032, '', .8571, '', .8733, .4765, 274, 713],
+  ['Kkma', 0, .8451, '', .7929, '', .8401, .5275, 18, 900],
+];
+const tb = document.getElementById('perf-body');
+P.forEach(r => {
+  const tr = el('tr', r[1] ? 'madi' : null);
+  const f = v => v.toFixed(4);
+  const cell = (v, d, low) => { const td = el('td'); const s = el('span', low ? 'lo' : null, f(v)); td.append(s); if (d) td.append(el('span', 'd', d)); return td; };
+  tr.append(el('td', null, r[0]));
+  tr.append(cell(r[2], r[3]));
+  tr.append(cell(r[4], r[5]));
+  tr.append(cell(r[6]));
+  tr.append(cell(r[7], null, r[0] === 'madi 기본'));
+  tr.append(el('td', null, r[8].toLocaleString('en-US')));
+  tr.append(el('td', null, String(r[9])));
+  tb.append(tr);
+});
+
+// 점 그림: 문어 F1, 가로축 0.84~0.98 한 눈금
+(function () {
+  const svg = document.getElementById('dot'), NS = 'http://www.w3.org/2000/svg';
+  const L = 150, R = 610, T = 14, rowH = 28, x0 = 0.84, x1 = 0.98;
+  const X = v => L + (v - x0) / (x1 - x0) * (R - L);
+  const rows = P.slice().sort((a, b) => b[2] - a[2]);
+  const H = T + rows.length * rowH + 34;
+  svg.setAttribute('viewBox', `0 0 680 ${H}`);
+  const mk = (n, a) => { const e = document.createElementNS(NS, n); for (const k in a) e.setAttribute(k, a[k]); svg.append(e); return e; };
+  for (let v = 0.84; v <= 0.9801; v += 0.02) {
+    const x = X(v);
+    mk('line', { x1: x, x2: x, y1: T - 4, y2: T + rows.length * rowH, stroke: 'var(--line)', 'stroke-width': 1 });
+    mk('text', { x, y: T + rows.length * rowH + 18, 'text-anchor': 'middle', 'font-size': 11, fill: 'var(--muted)', 'font-family': 'IBM Plex Mono, monospace' }).textContent = v.toFixed(2);
+  }
+  rows.forEach((r, i) => {
+    const y = T + i * rowH + rowH / 2;
+    const isM = !!r[1];
+    mk('text', { x: L - 10, y: y + 4, 'text-anchor': 'end', 'font-size': 12.5, fill: isM ? 'var(--ink)' : 'var(--muted)', 'font-weight': isM ? 600 : 400, 'font-family': 'IBM Plex Sans KR, sans-serif' }).textContent = r[0];
+    mk('line', { x1: L, x2: X(r[2]), y1: y, y2: y, stroke: isM ? 'var(--accent)' : 'var(--line)', 'stroke-width': isM ? 2 : 1.5 });
+    mk('circle', { cx: X(r[2]), cy: y, r: isM ? 5.5 : 4.5, fill: isM ? 'var(--accent)' : 'var(--muted)' });
+    mk('text', { x: X(r[2]) + 9, y: y + 4, 'font-size': 11, fill: 'var(--muted)', 'font-family': 'IBM Plex Mono, monospace' }).textContent = r[2].toFixed(4);
+  });
+})();
+
+// 복사 단추
+document.querySelectorAll('[data-copy]').forEach(b => b.addEventListener('click', () => {
+  const pre = document.getElementById(b.dataset.copy);
+  const done = () => { b.textContent = '복사됨'; setTimeout(() => b.textContent = '복사', 1500); };
+  const fallback = () => { const r = document.createRange(); r.selectNodeContents(pre); const s = getSelection(); s.removeAllRanges(); s.addRange(r); b.textContent = '선택됨'; setTimeout(() => b.textContent = '복사', 1500); };
+  try { navigator.clipboard.writeText(pre.textContent).then(done, fallback); } catch (e) { fallback(); }
+}));
+</script>
