@@ -155,9 +155,10 @@ footer .wrap { display: grid; gap: 0.6rem; }
 
 <header class="top">
   <div class="wrap">
-    <div class="brand">madi<span>마디 · 0.1.1</span></div>
+    <div class="brand">madi<span>마디 · 0.2.0</span></div>
     <nav aria-label="바로 가기">
       <a href="#install">설치</a>
+      <a href="#usage">사용법</a>
       <a href="#perf">성능</a>
       <a href="#license">모델·이용 조건</a>
       <a href="https://github.com/p14jeffwest/madi-release">GitHub</a>
@@ -181,8 +182,8 @@ footer .wrap { display: grid; gap: 0.6rem; }
             <button type="button" id="tag-code" aria-pressed="false">코드</button>
           </div>
         </div>
-        <div class="sentence" id="sentence"></div>
-        <div class="madi-row" id="madi-row"></div>
+        <div class="sentence" id="sentence">아버지가 방에 들어가신다.</div>
+        <div class="madi-row" id="madi-row"><div class="eojeol"><div class="surface">아버지가</div><div class="morphs"><div class="m"><span class="form">아버지</span><span class="tag" title="일반명사 (NNG)">일반명</span></div><div class="m"><span class="form">가</span><span class="tag" title="주격조사 (JKS)">주격조</span></div></div></div><div class="eojeol"><div class="surface">방에</div><div class="morphs"><div class="m"><span class="form">방</span><span class="tag" title="일반명사 (NNG)">일반명</span></div><div class="m"><span class="form">에</span><span class="tag" title="부사격조사 (JKB)">부사조</span></div></div></div><div class="eojeol"><div class="surface">들어가신다.</div><div class="morphs"><div class="m"><span class="form">들어가</span><span class="tag" title="동사 (VV)">동사</span></div><div class="m"><span class="form">시</span><span class="tag" title="선어말어미 (EP)">선어말</span></div><div class="m"><span class="form">ㄴ다</span><span class="tag" title="종결어미 (EF)">종결어</span></div><div class="m"><span class="form">.</span><span class="tag" title="마침표·물음표·느낌표 (SF)">마침</span></div></div></div></div>
         <p class="demo-note">madi 기본 설정(사전 + n-gram LM + 신경망 LM)의 실제 출력입니다. 겹줄은 어절 경계, 표지에 마우스를 올리면 정식 이름이 보입니다. 축약된 활용형(신다 = 시 + ㄴ다, 들어 = 듣 + 어)은 원형으로 풀어 냅니다.</p>
       </div>
     </div>
@@ -197,7 +198,7 @@ footer .wrap { display: grid; gap: 0.6rem; }
         <div class="feature"><h3>정밀 모드</h3><p>점수 차가 작은 어절만 작은 트랜스포머 교사로 다시 고릅니다. 동사·형용사, 불규칙 활용처럼 헷갈리는 자리에서 정확도가 오르고, 대신 느려집니다.</p></div>
         <div class="feature"><h3>형태소로 나누는 문장 분리</h3><p>마침표가 없는 구어 문장도 종결 어미를 보고 나눕니다. 규칙만 쓰는 빠른 분리도 함께 있습니다.</p></div>
         <div class="feature"><h3>사용자 사전</h3><p>단어, 기분석 항목, 분석 고치기 규칙을 파일로 더할 수 있습니다.</p></div>
-        <div class="feature"><h3>판본 문자열</h3><p>사전·모델 파일과 설정을 해시로 묶은 문자열(<code>0.1.1+decdb.r3p.f11…</code>)을 냅니다. 두 분석 결과가 같은 판에서 나왔는지 바로 확인할 수 있습니다.</p></div>
+        <div class="feature"><h3>판본 문자열</h3><p>사전·모델 파일과 설정을 해시로 묶은 문자열(<code>0.2.0+decdb.r3p.f11…</code>)을 냅니다. 두 분석 결과가 같은 판에서 나왔는지 바로 확인할 수 있습니다.</p></div>
       </div>
     </div>
   </section>
@@ -212,7 +213,10 @@ footer .wrap { display: grid; gap: 0.6rem; }
 
 import madi
 m = madi.Analyzer()   # 처음 한 번 모델을 받는다
-m.pos('아버지가 방에 들어가신다')</pre><button type="button" data-copy="c-py">복사</button></div>
+m.pos('아버지가 방에 들어가신다')
+# [('아버지', '일반명'), ('가', '주격조'), …]
+m.pos('아버지가', tags='code')
+# [('아버지', 'NNG'), ('가', 'JKS')]</pre><button type="button" data-copy="c-py">복사</button></div>
           <p class="demo-note">설치 이름은 <code>madipy</code>, 코드에서는 <code>import madi</code>. 모델(약 87 MB, 정밀 모드 +27 MB)은 처음 쓸 때 받습니다.</p>
         </div>
         <div>
@@ -225,6 +229,19 @@ madi analyze --dict madi.dict --lm knlm.bin \
           <p class="demo-note">모델 파일은 <a href="https://github.com/p14jeffwest/madi-release/releases">Release</a> 에서 받아 경로를 줍니다. API 문서는 <a href="https://docs.rs/madi">docs.rs</a>.</p>
         </div>
       </div>
+    </div>
+  </section>
+
+  <section class="block" id="usage" aria-labelledby="use-h">
+    <div class="wrap" style="display:grid;gap:1.25rem">
+      <h2 id="use-h">사용법</h2>
+      <div class="cols" style="grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr))">
+        <div class="feature"><h3>분석</h3><p><code>tokenize</code> 는 위치·어절 번호·문장 번호·원형이 든 <code>Token</code> 목록을, <code>pos</code> 는 (형태, 품사) 목록을 돌려줍니다. 문자열 목록을 주면 여러 스레드로 나눠 분석합니다.</p></div>
+        <div class="feature"><h3>문장 분리</h3><p><code>split_into_sents</code> 는 마침표가 없어도 종결 어미 뒤에서 끊고, 문장마다 원문 위치와 형태소를 줍니다.</p></div>
+        <div class="feature"><h3>여러 후보</h3><p><code>analyze(text, top_n=3)</code> 은 점수가 붙은 후보 분석을 좋은 것부터 돌려줍니다.</p></div>
+        <div class="feature"><h3>사용자 사전·불용어</h3><p>사전 파일을 주거나 <code>add_user_word</code> 로 실행 중에 단어를 더합니다. <code>madi.utils.Stopwords</code> 로 조사·어미 같은 말을 뺍니다.</p></div>
+      </div>
+      <p class="demo-note">메서드 이름과 결과 꼴은 Kiwi(kiwipiepy)와 맞춰 두었습니다. 예와 출력이 모두 든 사용 안내는 <a href="https://pypi.org/project/madipy/">PyPI 페이지</a>에 있습니다.</p>
     </div>
   </section>
 
@@ -243,7 +260,17 @@ madi analyze --dict madi.dict --lm knlm.bin \
           <thead>
             <tr><th>분석기</th><th>MP 2025 문어<br>F1</th><th>MP 2025 구어<br>F1</th><th>신문 1990~2025<br>420문장 F1</th><th>모호성 kiwi510<br>정확도</th><th>속도<br>KB/s</th><th>메모리<br>MB</th></tr>
           </thead>
-          <tbody id="perf-body"></tbody>
+          <tbody id="perf-body">
+            <tr class="madi"><td>madi 기본</td><td><span>0.9774</span><span class="d">+0.32p [+0.24, +0.39]</span></td><td><span>0.9640</span><span class="d">+0.53p [+0.44, +0.64]</span></td><td><span>0.9772</span></td><td><span class="lo">0.7471</span></td><td>284</td><td>469</td></tr>
+            <tr class="madi"><td>madi 정밀</td><td><span>0.9784</span><span class="d">+0.42p [+0.34, +0.50]</span></td><td><span>0.9656</span><span class="d">+0.69p [+0.59, +0.80]</span></td><td><span>0.9786</span></td><td><span>0.8137</span></td><td>26</td><td>525</td></tr>
+            <tr class="madi"><td>madi n-gram 만</td><td><span>0.9751</span><span class="d">+0.09p</span></td><td><span>0.9611</span><span class="d">+0.25p</span></td><td><span>0.9746</span></td><td><span>0.7196</span></td><td>398</td><td>338</td></tr>
+            <tr><td>Kiwi CoNg</td><td><span>0.9742</span></td><td><span>0.9586</span></td><td><span>0.9737</span></td><td><span>0.8275</span></td><td>268</td><td>580</td></tr>
+            <tr><td>Kiwi CoNg-global</td><td><span>0.9751</span><span class="d">+0.09p</span></td><td><span>0.9603</span><span class="d">+0.16p</span></td><td><span>0.9719</span></td><td><span>0.8667</span></td><td>107</td><td>600</td></tr>
+            <tr><td>Khaiii</td><td><span>0.9554</span></td><td><span>0.9189</span></td><td><span>0.9386</span></td><td><span>0.5588</span></td><td>290</td><td>30</td></tr>
+            <tr><td>mecab-ko</td><td><span>0.9157</span></td><td><span>0.9053</span></td><td><span>0.9182</span></td><td><span>0.5549</span></td><td>2,592</td><td>76</td></tr>
+            <tr><td>Komoran</td><td><span>0.9032</span></td><td><span>0.8571</span></td><td><span>0.8733</span></td><td><span>0.4765</span></td><td>274</td><td>713</td></tr>
+            <tr><td>Kkma</td><td><span>0.8451</span></td><td><span>0.7929</span></td><td><span>0.8401</span></td><td><span>0.5275</span></td><td>18</td><td>900</td></tr>
+          </tbody>
         </table>
       </div>
       <ul class="notes">
@@ -277,7 +304,7 @@ madi analyze --dict madi.dict --lm knlm.bin \
 
 <footer>
   <div class="wrap">
-    <div>madi(마디) 0.1.1 · 2026 박희진 · 이름은 대나무의 마디, 말의 마디에서 왔습니다.</div>
+    <div>madi(마디) 0.2.0 · 2026 박희진 · 이름은 대나무의 마디, 말의 마디에서 왔습니다.</div>
     <div><a href="https://github.com/p14jeffwest/madi-release">github.com/p14jeffwest/madi-release</a></div>
   </div>
 </footer>
@@ -363,21 +390,6 @@ const P = [
   ['Komoran', 0, .9032, '', .8571, '', .8733, .4765, 274, 713],
   ['Kkma', 0, .8451, '', .7929, '', .8401, .5275, 18, 900],
 ];
-const tb = document.getElementById('perf-body');
-P.forEach(r => {
-  const tr = el('tr', r[1] ? 'madi' : null);
-  const f = v => v.toFixed(4);
-  const cell = (v, d, low) => { const td = el('td'); const s = el('span', low ? 'lo' : null, f(v)); td.append(s); if (d) td.append(el('span', 'd', d)); return td; };
-  tr.append(el('td', null, r[0]));
-  tr.append(cell(r[2], r[3]));
-  tr.append(cell(r[4], r[5]));
-  tr.append(cell(r[6]));
-  tr.append(cell(r[7], null, r[0] === 'madi 기본'));
-  tr.append(el('td', null, r[8].toLocaleString('en-US')));
-  tr.append(el('td', null, String(r[9])));
-  tb.append(tr);
-});
-
 // 점 그림: 문어 F1, 가로축 0.84~0.98 한 눈금
 (function () {
   const svg = document.getElementById('dot'), NS = 'http://www.w3.org/2000/svg';
