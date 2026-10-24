@@ -251,31 +251,31 @@ madi analyze --dict madi.dict --lm knlm.bin \
       <p>여러 분석기를 같은 잣대로 채점했습니다. 각 분석기의 태그를 세종 태그로 옮기고, 복합 명사 단위·숫자·기호처럼 분석기마다 관행이 갈리는 곳은 양쪽에서 똑같이 지웁니다. 차이는 Kiwi CoNg 대비이고, 괄호는 95% 구간입니다.</p>
 
       <figure>
-        <div class="chart-box"><svg id="dot" viewBox="0 0 680 300" role="img" aria-label="분석기별 형태소 F1 점 그림"></svg></div>
-        <figcaption>모두의 말뭉치 형태 분석 말뭉치 2025 문어 6,953문장(학습에 쓰지 않은 셋), 형태소 F1. 가로축은 0.84 에서 시작합니다.</figcaption>
+        <div class="chart-box"><svg id="dot" viewBox="0 0 680 300" role="img" aria-label="분석기별 형태소 F1 (%) 점 그림"></svg></div>
+        <figcaption>모두의 말뭉치 형태 분석 말뭉치 2025 문어 6,953문장(학습에 쓰지 않은 셋), 형태소 F1 (%). 가로축은 84 에서 시작합니다.</figcaption>
       </figure>
 
       <div class="table-wrap">
         <table>
           <thead>
-            <tr><th>분석기</th><th>MP 2025 문어<br>F1</th><th>MP 2025 구어<br>F1</th><th>신문 1990~2025<br>420문장 F1</th><th>모호성 kiwi510<br>정확도</th><th>속도<br>KB/s</th><th>메모리<br>MB</th></tr>
+            <tr><th>분석기</th><th>MP 2025 문어<br>F1 (%)</th><th>MP 2025 구어<br>F1 (%)</th><th>신문 1990~2025<br>420문장 F1 (%)</th><th>모호성 kiwi510<br>정확도 (%)</th><th>속도<br>KB/s</th><th>메모리<br>MB</th></tr>
           </thead>
           <tbody id="perf-body">
-            <tr class="madi"><td>madi 기본</td><td><span>0.9772</span><span class="d">+0.30p [+0.22, +0.38]</span></td><td><span>0.9644</span><span class="d">+0.58p [+0.48, +0.68]</span></td><td><span>0.9772</span></td><td><span class="lo">0.7588</span></td><td>286</td><td>417</td></tr>
-            <tr class="madi"><td>madi 정밀</td><td><span>0.9785</span><span class="d">+0.43p [+0.35, +0.51]</span></td><td><span>0.9659</span><span class="d">+0.73p [+0.63, +0.83]</span></td><td><span>0.9792</span></td><td><span>0.8137</span></td><td>23</td><td>478</td></tr>
-            <tr class="madi"><td>madi n-gram 만</td><td><span>0.9752</span><span class="d">+0.10p</span></td><td><span>0.9617</span><span class="d">+0.31p</span></td><td><span>0.9745</span></td><td><span>0.7196</span></td><td>355</td><td>267</td></tr>
-            <tr><td>Kiwi CoNg</td><td><span>0.9742</span></td><td><span>0.9586</span></td><td><span>0.9737</span></td><td><span>0.8275</span></td><td>268</td><td>580</td></tr>
-            <tr><td>Kiwi CoNg-global</td><td><span>0.9751</span><span class="d">+0.09p</span></td><td><span>0.9603</span><span class="d">+0.16p</span></td><td><span>0.9719</span></td><td><span>0.8667</span></td><td>107</td><td>600</td></tr>
-            <tr><td>Khaiii</td><td><span>0.9554</span></td><td><span>0.9189</span></td><td><span>0.9386</span></td><td><span>0.5588</span></td><td>290</td><td>30</td></tr>
-            <tr><td>mecab-ko</td><td><span>0.9157</span></td><td><span>0.9053</span></td><td><span>0.9182</span></td><td><span>0.5549</span></td><td>2,592</td><td>76</td></tr>
-            <tr><td>Komoran</td><td><span>0.9032</span></td><td><span>0.8571</span></td><td><span>0.8733</span></td><td><span>0.4765</span></td><td>274</td><td>713</td></tr>
-            <tr><td>Kkma</td><td><span>0.8451</span></td><td><span>0.7929</span></td><td><span>0.8401</span></td><td><span>0.5275</span></td><td>18</td><td>900</td></tr>
+            <tr class="madi"><td>madi 기본</td><td><span>97.72</span><span class="d">+0.30p [+0.22, +0.38]</span></td><td><span>96.44</span><span class="d">+0.58p [+0.48, +0.68]</span></td><td><span>97.72</span></td><td><span class="lo">75.88</span></td><td>286</td><td>417</td></tr>
+            <tr class="madi"><td>madi 정밀</td><td><span>97.85</span><span class="d">+0.43p [+0.35, +0.51]</span></td><td><span>96.59</span><span class="d">+0.73p [+0.63, +0.83]</span></td><td><span>97.92</span></td><td><span>81.37</span></td><td>23</td><td>478</td></tr>
+            <tr class="madi"><td>madi n-gram 만</td><td><span>97.52</span><span class="d">+0.10p</span></td><td><span>96.17</span><span class="d">+0.31p</span></td><td><span>97.45</span></td><td><span>71.96</span></td><td>355</td><td>267</td></tr>
+            <tr><td>Kiwi CoNg</td><td><span>97.42</span></td><td><span>95.86</span></td><td><span>97.37</span></td><td><span>82.75</span></td><td>268</td><td>580</td></tr>
+            <tr><td>Kiwi CoNg-global</td><td><span>97.51</span><span class="d">+0.09p</span></td><td><span>96.03</span><span class="d">+0.16p</span></td><td><span>97.19</span></td><td><span>86.67</span></td><td>107</td><td>600</td></tr>
+            <tr><td>Khaiii</td><td><span>95.54</span></td><td><span>91.89</span></td><td><span>93.86</span></td><td><span>55.88</span></td><td>290</td><td>30</td></tr>
+            <tr><td>mecab-ko</td><td><span>91.57</span></td><td><span>90.53</span></td><td><span>91.82</span></td><td><span>55.49</span></td><td>2,592</td><td>76</td></tr>
+            <tr><td>Komoran</td><td><span>90.32</span></td><td><span>85.71</span></td><td><span>87.33</span></td><td><span>47.65</span></td><td>274</td><td>713</td></tr>
+            <tr><td>Kkma</td><td><span>84.51</span></td><td><span>79.29</span></td><td><span>84.01</span></td><td><span>52.75</span></td><td>18</td><td>900</td></tr>
           </tbody>
         </table>
       </div>
       <ul class="notes">
         <li>madi 는 0.3.0 공개판(모델 kword6) 기본 설정 그대로 쟀습니다(4p 가중, 전후향 가지치기 11, 정밀 τ 2.0·λ 0.3). 다른 분석기 줄은 2026-10-16 측정입니다.</li>
-        <li>기본 모드는 모호성 벤치마크 kiwi510 에서 Kiwi 보다 낮습니다(0.7588 대 0.8275, p 0.0013). 정밀 모드는 같은 수준입니다(차이 유의하지 않음). 일반 문장의 형태소 F1 은 기본 모드도 앞섭니다.</li>
+        <li>기본 모드는 모호성 벤치마크 kiwi510 에서 Kiwi 보다 낮습니다(75.88 대 82.75, p 0.0013). 정밀 모드는 같은 수준입니다(차이 유의하지 않음). 일반 문장의 형태소 F1 은 기본 모드도 앞섭니다.</li>
         <li>신문 420문장에서 madi 기본과 Kiwi CoNg 의 차(+0.35p)는 유의하지 않습니다. 정밀 모드의 차(+0.55p)는 유의합니다.</li>
         <li>MP 2025 문어는 홀수 번째 문장으로 평가했고, 같은 기사의 짝수 번째 문장은 점수 가중 학습에 썼습니다.</li>
         <li>0.2.x(모델 kword5, 논문 판 — 전후향 가지치기 끔)와 비교하면 일반 문장 F1 은 같은 수준(문어 −0.02p, 구어 +0.04p)이고 kiwi510 기본이 +1.2p 입니다. kword6 는 개발용 문서를 모든 모델 입력에서 뺀 묶음입니다.</li>
@@ -383,30 +383,30 @@ render();
 // 성능 표 — madi 줄: 0.3.0 공개판(kword6, 기본 설정) 2026-10-21 측정(claude/madi-030-1.md), 속도·메모리는 노트북(tools/compare/speed_030.bat).
 // 다른 분석기: claude/madi-paper-A-results.md §11.4(표 A·A′·C), §14.1(속도·메모리), 2026-10-16 측정
 const P = [
-  // 이름, madi?, 문어, 문어 차, 구어, 구어 차, 신문(중립), kiwi510, KB/s, MB
-  ['madi 기본', 1, .9772, '+0.30p [+0.22, +0.38]', .9644, '+0.58p [+0.48, +0.68]', .9772, .7588, 286, 417],
-  ['madi 정밀', 1, .9785, '+0.43p [+0.35, +0.51]', .9659, '+0.73p [+0.63, +0.83]', .9792, .8137, 23, 478],
-  ['madi n-gram 만', 1, .9752, '+0.10p', .9617, '+0.31p', .9745, .7196, 355, 267],
-  ['Kiwi CoNg', 0, .9742, '', .9586, '', .9737, .8275, 268, 580],
-  ['Kiwi CoNg-global', 0, .9751, '+0.09p', .9603, '+0.16p', .9719, .8667, 107, 600],
-  ['Khaiii', 0, .9554, '', .9189, '', .9386, .5588, 290, 30],
-  ['mecab-ko', 0, .9157, '', .9053, '', .9182, .5549, 2592, 76],
-  ['Komoran', 0, .9032, '', .8571, '', .8733, .4765, 274, 713],
-  ['Kkma', 0, .8451, '', .7929, '', .8401, .5275, 18, 900],
+  // 이름, madi?, 문어 F1 (%), 문어 차 (%p), 구어, 구어 차, 신문(중립), kiwi510 정확도 (%), KB/s, MB
+  ['madi 기본', 1, 97.72, '+0.30p [+0.22, +0.38]', 96.44, '+0.58p [+0.48, +0.68]', 97.72, 75.88, 286, 417],
+  ['madi 정밀', 1, 97.85, '+0.43p [+0.35, +0.51]', 96.59, '+0.73p [+0.63, +0.83]', 97.92, 81.37, 23, 478],
+  ['madi n-gram 만', 1, 97.52, '+0.10p', 96.17, '+0.31p', 97.45, 71.96, 355, 267],
+  ['Kiwi CoNg', 0, 97.42, '', 95.86, '', 97.37, 82.75, 268, 580],
+  ['Kiwi CoNg-global', 0, 97.51, '+0.09p', 96.03, '+0.16p', 97.19, 86.67, 107, 600],
+  ['Khaiii', 0, 95.54, '', 91.89, '', 93.86, 55.88, 290, 30],
+  ['mecab-ko', 0, 91.57, '', 90.53, '', 91.82, 55.49, 2592, 76],
+  ['Komoran', 0, 90.32, '', 85.71, '', 87.33, 47.65, 274, 713],
+  ['Kkma', 0, 84.51, '', 79.29, '', 84.01, 52.75, 18, 900],
 ];
-// 점 그림: 문어 F1, 가로축 0.84~0.98 한 눈금
+// 점 그림: 문어 F1 (%), 가로축 84~98 한 눈금 2
 (function () {
   const svg = document.getElementById('dot'), NS = 'http://www.w3.org/2000/svg';
-  const L = 150, R = 610, T = 14, rowH = 28, x0 = 0.84, x1 = 0.98;
+  const L = 150, R = 610, T = 14, rowH = 28, x0 = 84, x1 = 98;
   const X = v => L + (v - x0) / (x1 - x0) * (R - L);
   const rows = P.slice().sort((a, b) => b[2] - a[2]);
   const H = T + rows.length * rowH + 34;
   svg.setAttribute('viewBox', `0 0 680 ${H}`);
   const mk = (n, a) => { const e = document.createElementNS(NS, n); for (const k in a) e.setAttribute(k, a[k]); svg.append(e); return e; };
-  for (let v = 0.84; v <= 0.9801; v += 0.02) {
+  for (let v = 84; v <= 98.01; v += 2) {
     const x = X(v);
     mk('line', { x1: x, x2: x, y1: T - 4, y2: T + rows.length * rowH, stroke: 'var(--line)', 'stroke-width': 1 });
-    mk('text', { x, y: T + rows.length * rowH + 18, 'text-anchor': 'middle', 'font-size': 11, fill: 'var(--muted)', 'font-family': 'IBM Plex Mono, monospace' }).textContent = v.toFixed(2);
+    mk('text', { x, y: T + rows.length * rowH + 18, 'text-anchor': 'middle', 'font-size': 11, fill: 'var(--muted)', 'font-family': 'IBM Plex Mono, monospace' }).textContent = v.toFixed(0);
   }
   rows.forEach((r, i) => {
     const y = T + i * rowH + rowH / 2;
@@ -414,7 +414,7 @@ const P = [
     mk('text', { x: L - 10, y: y + 4, 'text-anchor': 'end', 'font-size': 12.5, fill: isM ? 'var(--ink)' : 'var(--muted)', 'font-weight': isM ? 600 : 400, 'font-family': 'IBM Plex Sans KR, sans-serif' }).textContent = r[0];
     mk('line', { x1: L, x2: X(r[2]), y1: y, y2: y, stroke: isM ? 'var(--accent)' : 'var(--line)', 'stroke-width': isM ? 2 : 1.5 });
     mk('circle', { cx: X(r[2]), cy: y, r: isM ? 5.5 : 4.5, fill: isM ? 'var(--accent)' : 'var(--muted)' });
-    mk('text', { x: X(r[2]) + 9, y: y + 4, 'font-size': 11, fill: 'var(--muted)', 'font-family': 'IBM Plex Mono, monospace' }).textContent = r[2].toFixed(4);
+    mk('text', { x: X(r[2]) + 9, y: y + 4, 'font-size': 11, fill: 'var(--muted)', 'font-family': 'IBM Plex Mono, monospace' }).textContent = r[2].toFixed(2);
   });
 })();
 
