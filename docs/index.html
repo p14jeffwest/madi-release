@@ -155,7 +155,7 @@ footer .wrap { display: grid; gap: 0.6rem; }
 
 <header class="top">
   <div class="wrap">
-    <div class="brand">madi<span>마디 · 0.3.0</span></div>
+    <div class="brand">madi<span>마디 · 0.4.0</span></div>
     <nav aria-label="바로 가기">
       <a href="#install">설치</a>
       <a href="#usage">사용법</a>
@@ -198,7 +198,8 @@ footer .wrap { display: grid; gap: 0.6rem; }
         <div class="feature"><h3>정밀 모드</h3><p>점수 차가 작은 어절만 작은 트랜스포머 교사로 다시 고릅니다. 동사·형용사, 불규칙 활용처럼 헷갈리는 자리에서 정확도가 오르고, 대신 느려집니다.</p></div>
         <div class="feature"><h3>형태소로 나누는 문장 분리</h3><p>마침표가 없는 구어 문장도 종결 어미를 보고 나눕니다. 규칙만 쓰는 빠른 분리도 함께 있습니다.</p></div>
         <div class="feature"><h3>사용자 사전</h3><p>단어, 기분석 항목, 분석 고치기 규칙을 파일로 더할 수 있습니다.</p></div>
-        <div class="feature"><h3>판본 문자열</h3><p>사전·모델 파일과 설정을 해시로 묶은 문자열(<code>0.3.0+d7f9f.r4p.f11…</code>)을 냅니다. 두 분석 결과가 같은 판에서 나왔는지 바로 확인할 수 있습니다.</p></div>
+        <div class="feature"><h3>빠른 모드 둘 (madipy 0.4.0)</h3><p><code>mode='fast'</code> 는 패턴 모델 하나로만 분석해 메모리 수십 MB 로 기본 모드보다 약 27배 빠릅니다. <code>mode='balanced'</code> 는 두 방향 패턴 분석이 어긋난 어절만 기본 분석으로 다시 분석해, <code>nlm=False</code> 와 같은 정확도로 그보다 2~3배 빠릅니다.</p></div>
+        <div class="feature"><h3>판본 문자열</h3><p>사전·모델 파일과 설정을 해시로 묶은 문자열(<code>0.4.0+d7f9f.r4p.f11…</code>)을 냅니다. 두 분석 결과가 같은 판에서 나왔는지 바로 확인할 수 있습니다.</p></div>
       </div>
     </div>
   </section>
@@ -217,7 +218,7 @@ m.pos('아버지가 방에 들어가신다')
 # [('아버지', '일반명'), ('가', '주격조'), …]
 m.pos('아버지가', tags='code')
 # [('아버지', 'NNG'), ('가', 'JKS')]</pre><button type="button" data-copy="c-py">복사</button></div>
-          <p class="demo-note">설치 이름은 <code>madipy</code>, 코드에서는 <code>import madi</code>. 모델(약 96 MB, 정밀 모드 +28 MB)은 처음 쓸 때 받습니다.</p>
+          <p class="demo-note">설치 이름은 <code>madipy</code>, 코드에서는 <code>import madi</code>. 모델(약 96 MB, 정밀 모드 +28 MB)은 처음 쓸 때 받습니다. 빠른 모드: <code>madi.Analyzer(mode='fast')</code> (패턴 모델 약 13 MB만 받음).</p>
         </div>
         <div>
           <span class="label">RUST</span>
@@ -226,7 +227,7 @@ cargo install madi-cli
 
 madi analyze --dict madi.dict --lm knlm.bin \
   --nlm model.nlm "아버지가 방에 들어가신다"</pre><button type="button" data-copy="c-rs">복사</button></div>
-          <p class="demo-note">모델 파일은 <a href="https://github.com/p14jeffwest/madi-release/releases">Release</a> 에서 받아 경로를 줍니다. API 문서는 <a href="https://docs.rs/madi">docs.rs</a>.</p>
+          <p class="demo-note">모델 파일은 <a href="https://github.com/p14jeffwest/madi-release/releases">Release</a> 에서 받아 경로를 줍니다. API 문서는 <a href="https://docs.rs/madi">docs.rs</a>. crates.io 판은 아직 0.3.0 이라 fast·balanced 모드는 Python 패키지에서 씁니다.</p>
         </div>
       </div>
     </div>
@@ -280,7 +281,27 @@ madi analyze --dict madi.dict --lm knlm.bin \
         <li>MP 2025 문어는 홀수 번째 문장으로 평가했고, 같은 기사의 짝수 번째 문장은 점수 가중 학습에 썼습니다.</li>
         <li>0.2.x(모델 kword5, 논문 판 — 전후향 가지치기 끔)와 비교하면 일반 문장 F1 은 같은 수준(문어 −0.02p, 구어 +0.04p)이고 kiwi510 기본이 +1.2p 입니다. kword6 는 개발용 문서를 모든 모델 입력에서 뺀 묶음입니다.</li>
         <li>속도·메모리: 노트북 1스레드, Python 바인딩, 분석 뒤 최대 RSS. Khaiii 는 같은 노트북의 WSL 에서 쟀습니다. JVM 분석기의 메모리는 JVM 힙을 포함합니다. Hannanum·Okt 는 세종 태그로 옮길 수 없어 표에서 뺐습니다.</li>
+        <li>0.4.0 의 기본 모드는 출력이 0.3.0 과 같습니다. 빠른 모드(fast·balanced)의 정확도·속도는 아래 '모드' 표에 있습니다.</li>
         <li>전후향 가지치기(τ 11)는 0.2.1 부터 기본입니다. 측정 셋 1만 7천 문장 중 5문장만 출력이 바뀌고, LM 질의가 44% 줄어 CLI 에서 약 17% 빨라집니다.</li>
+      </ul>
+
+      <h3 id="modes">모드 (madipy 0.4.0)</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>모드</th><th style="text-align:left">만드는 법</th><th>신문 420문장<br>엄격 F1 (%)</th><th>속도<br>MB/s</th><th>메모리<br>MB</th><th>받는 파일</th></tr></thead>
+          <tbody>
+            <tr class="madi"><td>fast</td><td style="text-align:left"><code>mode='fast'</code></td><td>95.03</td><td>8.02</td><td>36</td><td>13 MB</td></tr>
+            <tr class="madi"><td>balanced</td><td style="text-align:left"><code>mode='balanced'</code></td><td>97.05</td><td>1.06</td><td>429</td><td>96 + 26 MB</td></tr>
+            <tr class="madi"><td>기본</td><td style="text-align:left"><code>madi.Analyzer()</code></td><td>97.33</td><td>0.30</td><td>399</td><td>96 MB</td></tr>
+            <tr class="madi"><td>n-gram만</td><td style="text-align:left"><code>nlm=False</code></td><td>97.04</td><td>0.38</td><td>249</td><td>63 MB</td></tr>
+            <tr class="madi"><td>정밀</td><td style="text-align:left"><code>precise=True</code></td><td>97.46</td><td>0.025</td><td>461</td><td>96 + 28 MB</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <ul class="notes">
+        <li>노트북 1스레드, 명령줄 분석기, 모델 읽기 시간을 뺀 분석 속도(신문 1 MB), 0.4.0 판 2026-10 측정. 위 표(Python 바인딩, KB/s)와 방법이 다릅니다.</li>
+        <li>fast·balanced 에서는 사용자 사전·한자 독음·정밀 모드·출력 옵션을 쓸 수 없습니다. 메모리·받는 파일은 balanced 가 기본 모드보다 조금 큽니다.</li>
+        <li>끝 부호 없이 이어 쓴 글(메신저·댓글 등)을 문장으로 나눌 때는 기본 모드가 낫습니다. fast 는 그런 글에서 문장 끝을 덜 찾고, balanced 도 조금 덜 찾습니다.</li>
       </ul>
     </div>
   </section>
@@ -294,12 +315,14 @@ madi analyze --dict madi.dict --lm knlm.bin \
           <tbody>
             <tr><td>분석기 코드 (madi-core · madi-lm · madi · madi-cli 등)</td><td style="text-align:left">crates.io, PyPI <code>madipy</code></td><td style="text-align:left">MIT 또는 Apache-2.0</td></tr>
             <tr><td>모델·사전 파일, WASM 경량 모델</td><td style="text-align:left">GitHub Release <code>models-kword6</code> (0.2.x 는 <code>models-kword5</code>)</td><td style="text-align:left">CC BY-SA 2.0 KR</td></tr>
+            <tr><td>패턴 모델 (fast·balanced)</td><td style="text-align:left">GitHub Release <code>models-kword6-fast1</code></td><td style="text-align:left">CC BY-SA 2.0 KR</td></tr>
             <tr><td>맞춤법 검사기 (LSP · VS Code 확장)</td><td style="text-align:left">실행 파일로만</td><td style="text-align:left">무료 이용 조건</td></tr>
             <tr><td>학습·평가 도구, 말뭉치 원문</td><td style="text-align:left">제공하지 않음</td><td style="text-align:left">—</td></tr>
           </tbody>
         </table>
       </div>
-      <p>모델·사전 파일은 CC BY-SA 2.0 KR 입니다. 국립국어원 모두의 말뭉치(형태 분석 말뭉치 2018~2020, 형태 분석 말뭉치 2025, 어휘 의미 분석 말뭉치 2020)와 우리말샘을 활용하였습니다(국립국어원 공개 승인 2026-10-17). 신문 기사 원문으로 자기 라벨 학습을 했습니다. 모델은 말뭉치 원문을 담거나 복원할 수 없는 통계·가중치입니다. 사전은 mecab-ko-dic(Apache-2.0)을 바탕으로 하고, 표준국어대사전(국립국어원, CC BY-SA 2.0 KR) 표제어·품사를 사전 어휘 확인에 활용했습니다.</p>
+      <p>모델·사전 파일은 CC BY-SA 2.0 KR 입니다. 국립국어원 모두의 말뭉치(형태 분석 말뭉치 2018~2020, 형태 분석 말뭉치 2025, 어휘 의미 분석 말뭉치 2020)와 우리말샘을 활용하였습니다(국립국어원 공개 승인 2026-10-14). 신문 기사 원문으로 자기 라벨 학습을 했습니다. 모델은 말뭉치 원문을 담거나 복원할 수 없는 통계·가중치입니다. 사전은 mecab-ko-dic(Apache-2.0)을 바탕으로 하고, 표준국어대사전(국립국어원, CC BY-SA 2.0 KR) 표제어·품사를 사전 어휘 확인에 활용했습니다.</p>
+      <p>패턴 모델(<code>models-kword6-fast1</code>)은 형태 분석 말뭉치 2018~2020 만 활용하였고, 사전 항목(씨앗)의 출처와 조건은 <code>models-kword6</code> 의 <code>madi.dict</code> 와 같습니다. 말뭉치 문장을 담거나 문장을 복원할 수 있는 형태가 아닙니다.</p>
       <p class="demo-note">학습 입력 목록은 <a href="https://github.com/p14jeffwest/madi-release/blob/main/MODEL-PROVENANCE.md">MODEL-PROVENANCE.md</a>, 출처 표시 예는 Release 의 <code>LICENSE-MODELS.txt</code> 에 있습니다.</p>
     </div>
   </section>
@@ -307,8 +330,8 @@ madi analyze --dict madi.dict --lm knlm.bin \
 
 <footer>
   <div class="wrap">
-    <div>madi(마디) 0.3.0 · 2026 박희진 · 이름은 대나무의 마디, 말의 마디에서 왔습니다.</div>
-    <div><a href="https://github.com/p14jeffwest/madi-release">github.com/p14jeffwest/madi-release</a></div>
+    <div>madi(마디) 0.4.0 · 2026 박희진 · 이름은 대나무의 마디, 말의 마디에서 왔습니다.</div>
+    <div><a href="https://github.com/p14jeffwest/madi-release">github.com/p14jeffwest/madi-release</a> · <a href="https://github.com/p14jeffwest/madi-release/blob/main/CHANGELOG.md">변경 기록</a></div>
   </div>
 </footer>
 
