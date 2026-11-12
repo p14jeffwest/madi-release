@@ -1,5 +1,8 @@
+<!doctype html>
+<html lang="ko">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>마디 형태소 분석기</title>
-<meta name="claude:viewport-fit-sides" content="cover">
 <meta name="description" content="madi(마디) — 순수 Rust 한국어 형태소 분석기. Python·Rust·WASM.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -288,18 +291,19 @@ madi analyze --dict madi.dict --lm knlm.bin \
       <h3 id="modes">모드 (madipy 0.4.0)</h3>
       <div class="table-wrap">
         <table>
-          <thead><tr><th>모드</th><th style="text-align:left">만드는 법</th><th>신문 420문장<br>엄격 F1 (%)</th><th>속도<br>MB/s</th><th>메모리<br>MB</th><th>받는 파일</th></tr></thead>
+          <thead><tr><th>모드</th><th style="text-align:left">만드는 법</th><th>MP 2025 문어<br>F1 (%)</th><th>신문 420문장<br>엄격 F1 (%)</th><th>모호성 kiwi510<br>정확도 (%)</th><th>속도<br>MB/s</th><th>메모리<br>MB</th><th>받는 파일</th></tr></thead>
           <tbody>
-            <tr class="madi"><td>fast</td><td style="text-align:left"><code>mode='fast'</code></td><td>95.03</td><td>8.02</td><td>36</td><td>13 MB</td></tr>
-            <tr class="madi"><td>balanced</td><td style="text-align:left"><code>mode='balanced'</code></td><td>97.05</td><td>1.06</td><td>429</td><td>96 + 26 MB</td></tr>
-            <tr class="madi"><td>기본</td><td style="text-align:left"><code>madi.Analyzer()</code></td><td>97.33</td><td>0.30</td><td>399</td><td>96 MB</td></tr>
-            <tr class="madi"><td>n-gram만</td><td style="text-align:left"><code>nlm=False</code></td><td>97.04</td><td>0.38</td><td>249</td><td>63 MB</td></tr>
-            <tr class="madi"><td>정밀</td><td style="text-align:left"><code>precise=True</code></td><td>97.46</td><td>0.025</td><td>461</td><td>96 + 28 MB</td></tr>
+            <tr class="madi"><td>fast</td><td style="text-align:left"><code>mode='fast'</code></td><td>95.75</td><td>95.03</td><td>58.43</td><td>8.02</td><td>36</td><td>13 MB</td></tr>
+            <tr class="madi"><td>balanced</td><td style="text-align:left"><code>mode='balanced'</code></td><td>97.54</td><td>97.05</td><td>65.29</td><td>1.06</td><td>429</td><td>96 + 26 MB</td></tr>
+            <tr class="madi"><td>기본</td><td style="text-align:left"><code>madi.Analyzer()</code></td><td>97.72</td><td>97.33</td><td>75.88</td><td>0.30</td><td>399</td><td>96 MB</td></tr>
+            <tr class="madi"><td>n-gram만</td><td style="text-align:left"><code>nlm=False</code></td><td>97.52</td><td>97.04</td><td>71.96</td><td>0.38</td><td>249</td><td>63 MB</td></tr>
+            <tr class="madi"><td>정밀</td><td style="text-align:left"><code>precise=True</code></td><td>97.85</td><td>97.46</td><td>81.37</td><td>0.025</td><td>461</td><td>96 + 28 MB</td></tr>
           </tbody>
         </table>
       </div>
       <ul class="notes">
-        <li>노트북 1스레드, 명령줄 분석기, 모델 읽기 시간을 뺀 분석 속도(신문 1 MB), 0.4.0 판 2026-10 측정. 위 표(Python 바인딩, KB/s)와 방법이 다릅니다.</li>
+        <li>정확도는 위 표와 같은 채점기·같은 셋입니다(MP 2025 문어는 중립 잣대, 신문 420문장은 엄격 잣대). 기본·정밀·n-gram만의 MP 2025 문어와 kiwi510 값은 위 표와 같습니다.</li>
+        <li>속도는 노트북 1스레드, 명령줄 분석기, 모델 읽기 시간을 뺀 분석 속도(신문 1 MB), 0.4.0 판 2026-10 측정입니다. 위 표(Python 바인딩, KB/s)와 방법이 다릅니다. Python 바인딩 1스레드로 재면 fast 는 약 3.6 MB/s, balanced 는 약 1.0 MB/s 입니다(같은 신문 1 MB). fast 는 분석보다 결과 객체를 만드는 몫이 커서 명령줄보다 느립니다.</li>
         <li>fast·balanced 에서는 사용자 사전·한자 독음·정밀 모드·출력 옵션을 쓸 수 없습니다. 메모리·받는 파일은 balanced 가 기본 모드보다 조금 큽니다.</li>
         <li>끝 부호 없이 이어 쓴 글(메신저·댓글 등)을 문장으로 나눌 때는 기본 모드가 낫습니다. fast 는 그런 글에서 문장 끝을 덜 찾고, balanced 도 조금 덜 찾습니다.</li>
       </ul>
@@ -429,15 +433,15 @@ const P = [
   for (let v = 84; v <= 98.01; v += 2) {
     const x = X(v);
     mk('line', { x1: x, x2: x, y1: T - 4, y2: T + rows.length * rowH, stroke: 'var(--line)', 'stroke-width': 1 });
-    mk('text', { x, y: T + rows.length * rowH + 18, 'text-anchor': 'middle', 'font-size': 11, fill: 'var(--muted)', 'font-family': 'IBM Plex Mono, monospace' }).textContent = v.toFixed(0);
+    mk('text', { x, y: T + rows.length * rowH + 18, 'text-anchor': 'middle', 'font-size': 11, fill: 'var(--muted)', style: 'font-family: var(--font-mono)' }).textContent = v.toFixed(0);
   }
   rows.forEach((r, i) => {
     const y = T + i * rowH + rowH / 2;
     const isM = !!r[1];
-    mk('text', { x: L - 10, y: y + 4, 'text-anchor': 'end', 'font-size': 12.5, fill: isM ? 'var(--ink)' : 'var(--muted)', 'font-weight': isM ? 600 : 400, 'font-family': 'IBM Plex Sans KR, sans-serif' }).textContent = r[0];
+    mk('text', { x: L - 10, y: y + 4, 'text-anchor': 'end', 'font-size': 12.5, fill: isM ? 'var(--ink)' : 'var(--muted)', 'font-weight': isM ? 600 : 400, style: 'font-family: var(--font-body)' }).textContent = r[0];
     mk('line', { x1: L, x2: X(r[2]), y1: y, y2: y, stroke: isM ? 'var(--accent)' : 'var(--line)', 'stroke-width': isM ? 2 : 1.5 });
     mk('circle', { cx: X(r[2]), cy: y, r: isM ? 5.5 : 4.5, fill: isM ? 'var(--accent)' : 'var(--muted)' });
-    mk('text', { x: X(r[2]) + 9, y: y + 4, 'font-size': 11, fill: 'var(--muted)', 'font-family': 'IBM Plex Mono, monospace' }).textContent = r[2].toFixed(2) + '%';
+    mk('text', { x: X(r[2]) + 9, y: y + 4, 'font-size': 11, fill: 'var(--muted)', style: 'font-family: var(--font-mono)' }).textContent = r[2].toFixed(2) + '%';
   });
 })();
 
